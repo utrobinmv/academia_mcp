@@ -1,6 +1,7 @@
 # Based on
 # https://api.semanticscholar.org/api-docs/graph#tag/Paper-Data/operation/get_graph_get_paper_citations
 
+import os
 import json
 from typing import Optional, List, Dict, Any
 
@@ -12,6 +13,11 @@ GRAPH_URL_TEMPLATE = "https://api.semanticscholar.org/graph/v1/paper/{paper_id}/
 REVERSED_GRAPH_URL_TEMPLATE = "https://api.semanticscholar.org/graph/v1/paper/{paper_id}/references?fields={fields}&offset={offset}&limit={limit}"
 FIELDS = "title,authors,externalIds,venue,citationCount,publicationDate"
 
+PROXIES_LIST = []
+DEFAULT_DIR_PROXY = os.getenv("DIR_PROXIES", "/data")
+WORKING_PROXIES_FILE = os.path.join(DEFAULT_DIR_PROXY, "working_proxies.json")
+with open(WORKING_PROXIES_FILE, "r") as f:
+        PROXIES_LIST = json.load(f) 
 
 def _format_authors(authors: List[Dict[str, Any]]) -> List[str]:
     return [a["name"] for a in authors]
@@ -78,14 +84,25 @@ def s2_get_citations(
     paper_id = f"arxiv:{arxiv_id}"
 
     url = GRAPH_URL_TEMPLATE.format(paper_id=paper_id, fields=FIELDS, offset=offset, limit=limit)
-    response = get_with_retries(url)
+    
+    if len(PROXIES_LIST) > 0:
+        for proxy in PROXIES_LIST:
+            try: 
+                response = get_with_retries(url, proxies=proxy)
+            except Exception as e:
+                print(f"Proxy failed: {proxy}. Error: {str(e)}")
+                continue           
+            break
+    else:
+        proxy = {}
+        response = get_with_retries(url, proxies=proxy)
     result = response.json()
     entries = result["data"]
     total_count = len(result["data"]) + result["offset"]
 
     if "next" in result:
         paper_url = OLD_API_URL_TEMPLATE.format(paper_id=paper_id)
-        paper_response = get_with_retries(paper_url)
+        paper_response = get_with_retries(paper_url, proxies=proxy)
         paper_result = paper_response.json()
         total_count = paper_result["numCitedBy"]
 

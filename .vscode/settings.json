@@ -1,0 +1,12 @@
+{
+    "python.defaultInterpreterPath": "/home/joefox/.pyvenv/base/bin/python3",
+    "python.envFile": "/home/joefox/code/academia_mcp/.vscode/dev.env",   
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,    
+}

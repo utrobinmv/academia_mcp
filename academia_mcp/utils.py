@@ -14,6 +14,7 @@ def post_with_retries(
     timeout: int = 30,
     num_retries: int = 3,
     backoff_factor: float = 3.0,
+    proxies: Optional[Dict[str, str]] = None,
 ) -> requests.Response:
     retry_strategy = Retry(
         total=num_retries,
@@ -34,7 +35,7 @@ def post_with_retries(
         "Content-Type": "application/json",
     }
 
-    response = session.post(url, headers=headers, json=payload, timeout=timeout)
+    response = session.post(url, headers=headers, json=payload, timeout=timeout, proxies=proxies)
     response.raise_for_status()
     return response
 
@@ -46,6 +47,7 @@ def get_with_retries(
     num_retries: int = 3,
     backoff_factor: float = 3.0,
     params: Optional[Dict[str, Any]] = None,
+    proxies: Optional[Dict[str, str]] = None,
 ) -> requests.Response:
     retry_strategy = Retry(
         total=num_retries,
@@ -65,7 +67,7 @@ def get_with_retries(
         headers["x-subscription-token"] = api_key
         headers["Authorization"] = f"Bearer {api_key}"
 
-    response = session.get(url, headers=headers, timeout=timeout, params=params)
+    response = session.get(url, headers=headers, timeout=timeout, params=params, proxies=proxies)
     response.raise_for_status()
     return response
 
