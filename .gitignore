@@ -172,3 +172,4 @@ cython_debug/
 
 #add project
 academia_mcp/workdir/
+.vscode/

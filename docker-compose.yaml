@@ -1,0 +1,15 @@
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: bash -c "/app/run_in_docker.sh"  
+    volumes:
+      - ${DOCKER_ROOT_DATA_PATH}/data:/data/
+      - ./run_in_docker.sh:/app/run_in_docker.sh
+      - ./.env:/app/.env
+    ports:
+      - 5000:5000
+      - 5001:5001
+    env_file: .env
+    network_mode: bridge
